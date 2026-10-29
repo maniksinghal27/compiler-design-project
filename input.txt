@@ -1,0 +1,14 @@
+i = 1;
+sum = 0;
+
+while (i <= 3) {
+    j = 1;
+
+    while (j <= 2) {
+        sum = sum + i;
+        print(sum);
+        j = j + 1;
+    }
+
+    i = i + 1;
+}

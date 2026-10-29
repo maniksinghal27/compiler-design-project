@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compiler Design IDE - Control Flow & Backpatching</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; flex-direction: column; }
+        header { background: #2d2d2d; padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.2rem; color: #4ec9b0; }
+        button { background: #0e639c; color: white; border: none; padding: 8px 18px; font-size: 0.9rem; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        button:hover { background: #1177bb; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        .panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #333; }
+        .panel-title { background: #252526; padding: 8px 15px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #888; border-bottom: 1px solid #333; }
+        textarea { flex: 1; background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 15px; border: none; outline: none; resize: none; line-height: 1.5; }
+        #output { background: #1e1e1e; color: #6a9955; white-space: pre-wrap; }
+        .error { color: #f48771 !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Control-Flow Compiler IDE (While/For Loops with Backpatching)</h1>
+        <button onclick="runCompiler()">▶ Run Compiler</button>
+    </header>
+
+    <div class="main-container">
+        <div class="panel">
+            <div class="panel-title">Source Code Editor</div>
+            <textarea id="editor" placeholder="Write source code here...">x = 0;
+while (x < 3) {
+    x = x + 1;
+}
+for (i = 0; i < 5; i = i + 1) {
+    a = a + i;
+}</textarea>
+        </div>
+        <div class="panel">
+            <div class="panel-title">Compiler Output (TAC & Memory State)</div>
+            <textarea id="output" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        async function runCompiler() {
+            const code = document.getElementById('editor').value;
+            const outputElement = document.getElementById('output');
+            outputElement.classList.remove('error');
+            outputElement.value = "Compiling and generating Three-Address Code...";
+
+            try {
+                const response = await fetch('/compile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    outputElement.value = data.output;
+                } else {
+                    outputElement.classList.add('error');
+                    outputElement.value = data.error;
+                }
+            } catch (err) {
+                outputElement.classList.add('error');
+                outputElement.value = "Server connection error: " + err;
+            }
+        }
+    </script>
+</body>
+</html>
